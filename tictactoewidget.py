@@ -44,7 +44,7 @@ class TicTacToeWidget(QPushButton):
         else:
             self.setStyleSheet("background-color: light grey")
 
-    def enable_buttons(self):
+    def enable_buttons(self, m=False):
         for button in self.widgets:
             if button.mark is None:
                 button.setEnabled(True)
@@ -54,8 +54,7 @@ class TicTacToeWidget(QPushButton):
         enabled = [button.mark for button in self.widgets]
         if None not in enabled and not self.parent.mass_enabled:
             self.parent.mass_enable()
-            return
-        if self.random and not switch.switch:
+        if self.random and not m and not switch.switch:
             self.choose_random()
 
     def mass_disable(self):
@@ -66,7 +65,7 @@ class TicTacToeWidget(QPushButton):
     def mass_enable(self):
         self.mass_enabled = True
         for board in self.widgets:
-            board.enable_buttons()
+            board.enable_buttons(True)
 
     def board_test(self, p):
         if self.parent.mass_enabled:
@@ -105,7 +104,12 @@ class TicTacToeWidget(QPushButton):
                 self.layout.addWidget(temp, i, o)
 
     def choose_random(self):
-        num = random.choice([button.p for button in self.widgets])
+        possible = [button.p for button in self.widgets if button.mark is None]
+        if not possible:
+            num = random.choice([i for i in range(9) if not self.parent.widgets[i].complete_board])
+            self.parent.widgets[num].choose_random()
+            return
+        num = random.choice(possible)
         self.widgets[num].clicked.emit()
 
     def resizeEvent(self, a0: QResizeEvent) -> None:
