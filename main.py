@@ -10,8 +10,8 @@ class Display(QMainWindow):
         super().__init__()
         self.setWindowTitle("Ultimate TicTacToe")
         self.setWindowIcon(QIcon("bigX.png"))
-        self.setGeometry(100, 100, 500, 500)
-        self.setMinimumSize(500, 500)
+        self.setGeometry(100, 100, 480, 500)
+        self.setMinimumSize(480, 500)
 
         board = TicTacToeWidget(rand=True)
 
@@ -35,10 +35,13 @@ class Display(QMainWindow):
     def reset(self):
         board = TicTacToeWidget(rand=True)
         self.setCentralWidget(board)
+        switch.switch = True
 
     def two_player(self):
         board = TicTacToeWidget()
         self.setCentralWidget(board)
+        switch.switch = True
+
 
     @staticmethod
     def center_window(win):
