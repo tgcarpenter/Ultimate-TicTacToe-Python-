@@ -10,7 +10,7 @@ class TicTacToeWidget(QPushButton):
     def __init__(self, main=True, parent=None, rand=False):
         super().__init__()
         self.parent = parent
-        self.complete_board = None
+        self.complete = None
         self.mass_enabled = True
         self.random = rand
 
@@ -37,21 +37,21 @@ class TicTacToeWidget(QPushButton):
     def disable_buttons(self):
         for button in self.widgets:
             button.setDisabled(True)
-        if self.complete_board:
+        if self.complete:
             self.setStyleSheet("TicTacToeWidget {border-image:url(big%s.png) 0 0 0 0 stretch stretch; "
                                "background-position:center center; "
-                               "background-repeat: no-repeat;}" % self.complete_board)
+                               "background-repeat: no-repeat;}" % self.complete)
         else:
             self.setStyleSheet("background-color: light grey")
 
     def enable_buttons(self, m=False):
         for button in self.widgets:
-            if button.mark is None:
+            if button.complete is None:
                 button.setEnabled(True)
         self.setStyleSheet("TicTacToeWidget {background-color: qradialgradient("
                            "cx: 0.5, cy: 0.5, radius: 1.2, fx: 0.5, fy: 0.5, "
                            "stop: 0 rgba(240,210,20,144), stop: 0.2 rgba(240,210,20,100), stop: 0.4 rgba(240,240,240,0));}")
-        enabled = [button.mark for button in self.widgets]
+        enabled = [button.complete for button in self.widgets]
         if None not in enabled and not self.parent.mass_enabled:
             self.parent.mass_enable()
         if self.random and not m and not switch.switch:
@@ -73,18 +73,27 @@ class TicTacToeWidget(QPushButton):
         else:
             self.disable_buttons()
         self.parent.widgets[p].enable_buttons()
-        if self.complete_board:
+        if self.complete:
+            return
+        self.is_complete()
+        if self.parent:
+            self.parent.is_complete()
+
+    def is_complete(self):
+        if self.complete:
             return
         tests = ((0, 1, 2), (3, 4, 5), (6, 7, 8), (0, 3, 6), (1, 4, 7), (2, 5, 8), (0, 4, 8), (2, 4, 6))
         for line in tests:
-            marks = [self.widgets[i].mark for i in line]
+            marks = [self.widgets[i].complete for i in line]
             if marks[0] and marks[0] == marks[1] and marks[1] == marks[2]:
                 print("tictactoe")
-                self.complete_board = self.widgets[line[0]].mark
+                self.complete = self.widgets[line[0]].complete
                 self.setStyleSheet(
                     "TicTacToeWidget {border-image:url(big%s.png) 0 0 0 0 stretch stretch; "
                     "background-position:center center; "
-                    "background-repeat: no-repeat;}" % self.complete_board)
+                    "background-repeat: no-repeat;}" % self.complete)
+                if not self.parent:
+                    self.mass_disable()
 
     def add_buttons(self):
         count = 0
@@ -104,7 +113,7 @@ class TicTacToeWidget(QPushButton):
                 self.layout.addWidget(temp, i, o)
 
     def choose_random(self):
-        possible = [button.p for button in self.widgets if button.mark is None]
+        possible = [button.p for button in self.widgets if button.complete is None]
         if not possible:
             num = random.choice([i for i in range(9) if not self.parent.widgets[i].complete_board])
             self.parent.widgets[num].choose_random()
@@ -122,7 +131,7 @@ class XO(QPushButton):
         super(XO, self).__init__()
         self.parent = parent
         self.p = p
-        self.mark = None
+        self.complete = None
         self.setSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
         self.setStyleSheet("border: None")
         self.clicked.connect(self.fill)
@@ -132,12 +141,12 @@ class XO(QPushButton):
             self.setStyleSheet(
                 "border: None; border-image:url(X.png) 0 0 0 0 stretch stretch; background-position:center center; "
                 "background-repeat: no-repeat;")
-            self.mark = "X"
+            self.complete = "X"
         else:
             self.setStyleSheet(
                 "border: None; border-image:url(O.png) 0 0 0 0 stretch stretch; background-position:center center; "
                 "background-repeat: no-repeat;")
-            self.mark = "O"
+            self.complete = "O"
         self.disconnect()
         switch.switch = not switch.switch
         self.parent.board_test(self.p)
